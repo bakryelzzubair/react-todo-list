@@ -59,7 +59,6 @@ export default function Dialogs({
           />
           <TextField
             onChange={handleInputDescriptionNewValue}
-            autoFocus
             required
             margin="dense"
             id="name"
@@ -105,7 +104,6 @@ export default function Dialogs({
           <TextField
             onChange={handleInputDescriptionNewValue}
             value={formInputs.description}
-            autoFocus
             required
             margin="dense"
             id="name"
