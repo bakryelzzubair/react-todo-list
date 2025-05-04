@@ -13,7 +13,7 @@ export const SnakeBarProvider = ({ children }) => {
     setOpen(true);
     setTimeout(() => {
       setOpen(false);
-    }, 2000);
+    }, 3000);
   };
   return (
       <SnackBarContext.Provider value={{ setShowHideSnakeBar }}>

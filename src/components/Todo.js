@@ -58,7 +58,7 @@ const Todo = ({ todo, handleActionS }) => {
             onClick={() => handleAction("edit", todo.id)}
             aria-label="edit"
             color="primary"
-            sx={{ border: 2, borderColor: blue }}
+            sx={{ border: 2, borderColor: blue, bgcolor: "white" }}
           >
             <EditIcon />
           </IconButton>
@@ -66,7 +66,7 @@ const Todo = ({ todo, handleActionS }) => {
             onClick={() => handleAction("delete", todo.id)}
             aria-label="delete"
             color="error"
-            sx={{ border: 2, borderColor: red }}
+            sx={{ border: 2, borderColor: red, bgcolor: "white" }}
           >
             <DeleteIcon />
           </IconButton>

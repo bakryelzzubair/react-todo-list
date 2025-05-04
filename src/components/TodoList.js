@@ -151,7 +151,7 @@ export default function TodoList() {
   } else {
     jsxTodos = (
       <Typography
-        color="text.secondary"
+        color="white"
         bgcolor="info.main"
         sx={{
           height: 50,
