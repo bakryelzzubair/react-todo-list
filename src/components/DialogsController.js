@@ -6,32 +6,24 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { Typography } from "@mui/material";
-import { useDialog } from "../contexts/DialogContext";
 import { useCurrentTodo } from "../contexts/CurrentTodoContext";
-import { useTodos } from "../contexts/TodosContext";
-import { useSnack } from "../contexts/SnackBarContext";
-import { useCurrentTab } from "../contexts/CurrentTabContext";
-import { v4 as uuidv4 } from "uuid";
+import { useDialog } from "../contexts/DialogContext";
 
-export default function Dialogs() {
+export default function Dialogs({setTodoItems = false}) {
   const initialInputValue = { title: "", description: "" };
-
+  const { currentTodo } = useCurrentTodo();
   const {
     openCreateDialog,
-    openEditDialog,
     openDeleteDialog,
+    openEditDialog,
     setOpenCreateDialog,
-    setOpenEditDialog,
     setOpenDeleteDialog,
+    setOpenEditDialog,
   } = useDialog();
-  const { currentTodo } = useCurrentTodo;
-  const { todoItems, setTodoItems } = useTodos();
-  const { setShowHideSnakeBar } = useSnack();
-  const { setCurrentTab } = useCurrentTab();
 
   if (currentTodo) {
-    initialInputValue.title = currentTodo.title;
-    initialInputValue.description = currentTodo.description;
+    initialInputValue.title = currentTodo?.title;
+    initialInputValue.description = currentTodo?.description;
   }
 
   const [formInputs, setFormInputs] = React.useState(initialInputValue);
@@ -42,51 +34,8 @@ export default function Dialogs() {
   const handleInputDescriptionNewValue = (e) =>
     setFormInputs({ ...formInputs, description: e.target.value });
 
-  const handleSubmitCreateTodo = () => {
-    const updatedTodos = [
-      ...todoItems,
-      {
-        id: uuidv4(),
-        title: formInputs.title,
-        description: formInputs.description,
-        isCompleted: false,
-      },
-    ];
-    setTodoItems(updatedTodos);
-    localStorage.setItem("todos", JSON.stringify(updatedTodos));
-    setCurrentTab("non-completed");
-    setOpenCreateDialog(false);
-    setShowHideSnakeBar("تم انشاء المهمة بنجاح !!!");
-  };
-
-  const handleSubmitEditTodo = () => {
-    console.log("dd",currentTodo);
-    
-    const newEditedTodoItems = todoItems?.map((todo) => {
-      if (currentTodo?.id === todo.id) {
-        todo.title = formInputs.title;
-        todo.description = formInputs.description;
-      }
-      return todo;
-    });
-
-    setTodoItems(newEditedTodoItems);
-    localStorage.setItem("todos", JSON.stringify(newEditedTodoItems));
-
-    setOpenEditDialog(false);
-    setShowHideSnakeBar("تم تعديل المهمة بنجاح !!!");
-  };
-
-  const handleSubmitDeleteTodo = () => {
-    const newTodoItems = todoItems?.filter((t) => t.id !== currentTodo?.id);
-    setTodoItems(newTodoItems);
-    localStorage.setItem("todos", JSON.stringify(newTodoItems));
-    setOpenDeleteDialog(false);
-    setShowHideSnakeBar("تم حذف المهمة بنجاح !!!");
-  };
-
   return (
-    <React.Fragment>
+    <>
       {/* create modal */}
       <Dialog
         open={openCreateDialog}
@@ -121,9 +70,12 @@ export default function Dialogs() {
         <DialogActions>
           <Button onClick={() => setOpenCreateDialog(false)}>الغاء</Button>
           <Button
-            onClick={() =>
-              handleSubmitCreateTodo(formInputs.title, formInputs.description)
-            }
+            onClick={() => {
+              setTodoItems(formInputs.title, formInputs.description);
+              // setOpenCreateDialog(false)
+              // handleSubmitCreateTodo("formInputs.title", "formInputs.description")
+              // console.log("clicked", handleSubmitCreateTodo);
+            }}
           >
             حفظ
           </Button>
@@ -165,7 +117,17 @@ export default function Dialogs() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEditDialog(false)}>الغاء</Button>
-          <Button onClick={() => handleSubmitEditTodo()}>تعديل</Button>
+          <Button
+            onClick={() =>
+              setTodoItems(
+                currentTodo?.id,
+                formInputs.title,
+                formInputs.description
+              )
+            }
+          >
+            تعديل
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -187,14 +149,11 @@ export default function Dialogs() {
           <Button color="success" onClick={() => setOpenDeleteDialog(false)}>
             الغاء
           </Button>
-          <Button
-            color="error"
-            onClick={() => handleSubmitDeleteTodo()}
-          >
+          <Button color="error" onClick={() => setTodoItems(currentTodo?.id)}>
             تاكيد الحذف
           </Button>
         </DialogActions>
       </Dialog>
-    </React.Fragment>
+    </>
   );
 }

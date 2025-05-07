@@ -1,84 +1,31 @@
 import { Divider, Grid, Typography } from "@mui/material";
 import ToggleButtons from "./ToggleButtons";
 import Todo from "./Todo";
-import Dialogs from "./Dialogs";
-import { useEffect, useMemo, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+import Dialogs from "./DialogsController";
 import IconButton from "@mui/material/IconButton";
 import PlaylistAddSharpIcon from "@mui/icons-material/PlaylistAddSharp";
+import { useDialog } from "../contexts/DialogContext";
+import { useTodos } from "../contexts/TodosContext";
+import { useCurrentTodo } from "../contexts/CurrentTodoContext";
 import { useSnack } from "../contexts/SnackBarContext";
+import { v4 as uuidv4 } from "uuid";
+import { useCurrentTab } from "../contexts/CurrentTabContext";
 
 export default function TodoList() {
   //************************ COMPONENT BEGIN */
 
-  const [todoItems, setTodoItems] = useState([]);
-  const [openCreateDialog, setOpenCreateDialog] = useState(false);
-  const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [currentTab, setCurrentTab] = useState("non-completed");
-  const [currentTodo, setCurrentTodo] = useState({});
+  const {
+    openCreateDialog,
+    openDeleteDialog,
+    openEditDialog,
+    setOpenCreateDialog,
+    setOpenEditDialog,
+    setOpenDeleteDialog,
+  } = useDialog();
+  const { filterdTodos, todoItems, setTodoItems } = useTodos();
+  const { setCurrentTodo } = useCurrentTodo();
   const { setShowHideSnakeBar } = useSnack();
-
-  // currentTab state handler
-  const handleSetCurrentTab = (value) => {
-    setCurrentTab(value);
-  };
-
-  // CreateDialog start handlers
-  const handleSetOpenCreateDialog = (status = false) => {
-    setOpenCreateDialog(status);
-  };
-
-  const handleSubmitCreateTodo = (title, description) => {
-    const updatedTodos = [
-      ...todoItems,
-      {
-        id: uuidv4(),
-        title: title,
-        description: description,
-        isCompleted: false,
-      },
-    ];
-    setTodoItems(updatedTodos);
-    localStorage.setItem("todos", JSON.stringify(updatedTodos));
-    setCurrentTab("non-completed");
-    setOpenCreateDialog(false);
-    setShowHideSnakeBar("تم انشاء المهمة بنجاح !!!");
-  };
-
-  // EditDialog handlesr
-  const handleSetOpenEditDialog = (status) => {
-    setOpenEditDialog(status);
-  };
-
-  const handleSubmitEditTodo = (id, title, description) => {
-    const newTodoItems = todoItems?.map((todo) => {
-      if (id === todo.id) {
-        todo.title = title;
-        todo.description = description;
-      }
-      return todo;
-    });
-
-    setTodoItems(newTodoItems);
-    localStorage.setItem("todos", JSON.stringify(newTodoItems));
-
-    setOpenEditDialog(false);
-    setShowHideSnakeBar("تم تعديل المهمة بنجاح !!!");
-  };
-
-  //DeleteDialog handler
-  const handleSetOpenDeleteDialog = (status) => {
-    setOpenDeleteDialog(status);
-  };
-
-  const handleSubmitDeleteTodo = (id) => {
-    const newTodoItems = todoItems?.filter((t) => t.id !== id);
-    setTodoItems(newTodoItems);
-    localStorage.setItem("todos", JSON.stringify(newTodoItems));
-    setOpenDeleteDialog(false);
-    setShowHideSnakeBar("تم حذف المهمة بنجاح !!!");
-  };
+  const { setCurrentTab } = useCurrentTab();
 
   const handleActionS = (action, todoID = null) => {
     switch (action) {
@@ -104,7 +51,7 @@ export default function TodoList() {
 
         setCurrentTodo(currentTodoToEdit[0]);
 
-        handleSetOpenEditDialog(true);
+        setOpenEditDialog(true);
 
         break;
 
@@ -121,28 +68,47 @@ export default function TodoList() {
     }
   };
 
-  let filterdTodos;
+  const handleSubmitCreateTodo = (title, description) => {
+    const updatedTodos = [
+      ...todoItems,
+      {
+        id: uuidv4(),
+        title: title,
+        description: description,
+        isCompleted: false,
+      },
+    ];
+    setTodoItems(updatedTodos);
+    localStorage.setItem("todos", JSON.stringify(updatedTodos));
+    setOpenCreateDialog(false);
+    setCurrentTab("all");
+    setShowHideSnakeBar("تم انشاء المهمة بنجاح !!!");
+  };
 
-  const nonCompleted = useMemo(
-    (_) => todoItems?.filter((todo) => todo.isCompleted === false),
-    [todoItems]
-  );
-  const completed = useMemo(
-    (_) => todoItems?.filter((todo) => todo.isCompleted === true),
-    [todoItems]
-  );
+  const handleSubmitEditTodo = (id, title, description) => {
+    const newTodoItems = todoItems?.map((todo) => {
+      if (id === todo.id) {
+        todo.title = title;
+        todo.description = description;
+      }
+      return todo;
+    });
 
-  switch (currentTab) {
-    case "non-completed":
-      filterdTodos = nonCompleted;
-      break;
-    case "completed":
-      filterdTodos = completed;
-      break;
-    default:
-      filterdTodos = todoItems;
-      break;
-  }
+    setTodoItems(newTodoItems);
+    localStorage.setItem("todos", JSON.stringify(newTodoItems));
+
+    setOpenEditDialog(false);
+    setShowHideSnakeBar("تم تعديل المهمة بنجاح !!!");
+  };
+
+  const handleSubmitDeleteTodo = (id) => {
+    const newTodoItems = todoItems?.filter((t) => t.id !== id);
+    setTodoItems(newTodoItems);
+    localStorage.setItem("todos", JSON.stringify(newTodoItems));
+    setOpenDeleteDialog(false);
+    setShowHideSnakeBar("تم حذف المهمة بنجاح !!!");
+  };
+
   let jsxTodos = null;
   if (filterdTodos.length > 0) {
     jsxTodos = filterdTodos?.map((todo) => (
@@ -165,10 +131,6 @@ export default function TodoList() {
     );
   }
 
-  useEffect(() => {
-    setTodoItems(JSON.parse(localStorage.getItem("todos")) ?? []);
-  }, []);
-
   //************************ JSX SECTION BEGIN */
   return (
     <>
@@ -184,64 +146,17 @@ export default function TodoList() {
           </IconButton>
         </Grid>
         <Grid size={11} justifyContent="center">
-          <ToggleButtons
-            currentTab={currentTab}
-            setCurrentTab={handleSetCurrentTab}
-          />
+          <ToggleButtons />
         </Grid>
       </Grid>
 
       {/* show todos according to toggle button */}
       {jsxTodos}
 
-      {openCreateDialog && (
-        <Dialogs
-          openCreateDialog={openCreateDialog}
-          setOpenCreateDialog={handleSetOpenCreateDialog}
-          setTodoItems={handleSubmitCreateTodo}
-        />
-      )}
-      {openEditDialog && (
-        <Dialogs
-          openEditDialog={openEditDialog}
-          setOpenEditDialog={handleSetOpenEditDialog}
-          todo={currentTodo}
-          setTodoItems={handleSubmitEditTodo}
-        />
-      )}
-      {openDeleteDialog && (
-        <Dialogs
-          openDeleteDialog={openDeleteDialog}
-          setOpenDeleteDialog={handleSetOpenDeleteDialog}
-          todo={currentTodo}
-          setTodoItems={handleSubmitDeleteTodo}
-        />
-      )}
+      {openCreateDialog && <Dialogs setTodoItems={handleSubmitCreateTodo} />}
+      {openEditDialog && <Dialogs setTodoItems={handleSubmitEditTodo} />}
+      {openDeleteDialog && <Dialogs setTodoItems={handleSubmitDeleteTodo} />}
     </>
   );
   //************************ JSX SECTION END */
 } //************************ COMPONENT END */
-
-export const todoInitiailValue = [
-  {
-    id: uuidv4(),
-    title: "one",
-    description:
-      "تهدف هذه الدورة الى رفع المستوي البرمجي للحد الذي يمكن معه بناء مشاريع الويب 3",
-    isCompleted: false,
-  },
-  {
-    id: uuidv4(),
-    title: "قراءة 3 كتب تاريخية",
-    description:
-      "كتاب عون الشريف قاسم وطبقات ودضيف الله وكتاب تاريخ السودان الحديث",
-    isCompleted: false,
-  },
-  {
-    id: uuidv4(),
-    title: "حفظ الوجة الاخير من سورة الطور",
-    description:
-      "بالاضافة الي الحفظ يجب التدقيق علي الحفظ القديم من نفس السورة",
-    isCompleted: false,
-  },
-];

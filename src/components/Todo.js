@@ -9,15 +9,9 @@ import IconButton from "@mui/material/IconButton";
 import { blue, red } from "@mui/material/colors";
 
 const Todo = ({ todo, handleActionS }) => {
-  const handleAction = (action, todoID) => {
-    handleActionS(action, todoID);
-  };
-
   return (
     <Box
       sx={{
-        // minWidth: 275,
-        // height: 400,
         overflow: "auto",
         textAlign: "right",
         marginTop: 2,
@@ -27,7 +21,7 @@ const Todo = ({ todo, handleActionS }) => {
       }}
       // bgcolor={blueGrey}
     >
-      {!todo&&(<h1>no todos</h1>)}
+      {!todo && <h1>no todos</h1>}
       <Grid
         container
         spacing={1}
@@ -43,7 +37,7 @@ const Todo = ({ todo, handleActionS }) => {
         <Grid size={5} display={"flex"} justifyContent={"space-evenly"}>
           <IconButton
             onClick={() => {
-              handleAction("check", todo.id);
+              handleActionS("check", todo.id);
             }}
             aria-label="delete"
             sx={{
@@ -55,7 +49,7 @@ const Todo = ({ todo, handleActionS }) => {
             <CheckIcon />
           </IconButton>
           <IconButton
-            onClick={() => handleAction("edit", todo.id)}
+            onClick={() => handleActionS("edit", todo.id)}
             aria-label="edit"
             color="primary"
             sx={{ border: 2, borderColor: blue, bgcolor: "white" }}
@@ -63,7 +57,7 @@ const Todo = ({ todo, handleActionS }) => {
             <EditIcon />
           </IconButton>
           <IconButton
-            onClick={() => handleAction("delete", todo.id)}
+            onClick={() => handleActionS("delete", todo.id)}
             aria-label="delete"
             color="error"
             sx={{ border: 2, borderColor: red, bgcolor: "white" }}

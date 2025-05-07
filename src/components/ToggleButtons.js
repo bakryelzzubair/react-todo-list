@@ -1,8 +1,9 @@
 import React from "react";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-
-const ToggleButtons = ({currentTab, setCurrentTab}) => {
+import { useCurrentTab } from "../contexts/CurrentTabContext";
+const ToggleButtons = () => {
+  const { currentTab, setCurrentTab } = useCurrentTab();
   const handleToggleMenuGroup = (event) => {
     const value = event.target.value;
     setCurrentTab(value);
